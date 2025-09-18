@@ -22,8 +22,9 @@ class DigitalPetHome extends StatefulWidget {
 
 class _DigitalPetHomeState extends State<DigitalPetHome> {
   String petName = "";
-  int happinessLevel = 50;
-  int hungerLevel = 50;
+  int happinessLevel = 10;
+  int hungerLevel = 10;
+  int energyLevel = 50; // 0-100
   Timer? _hungerTimer;
   Timer? _winTimer;
   final TextEditingController _nameController = TextEditingController();
@@ -274,6 +275,27 @@ class _DigitalPetHomeState extends State<DigitalPetHome> {
                     onPressed: _feedPet,
                     child: const Text('Feed Your Pet'),
                   ),
+                const SizedBox(height: 32.0),
+                // Energy Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Energy',
+                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8.0),
+                      LinearProgressIndicator(
+                        value: energyLevel / 100.0,
+                        minHeight: 16.0,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    ],
+                  ),
+                ),
                 ],
               ),
       ),
