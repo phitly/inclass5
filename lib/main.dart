@@ -38,8 +38,10 @@ class _DigitalPetHomeState extends State<DigitalPetHome> {
       setState(() {
         hungerLevel += 5;
         if (hungerLevel > 100) hungerLevel = 100;
+        _checkWinCondition();
       });
     });
+    _checkWinCondition();
   }
 
   @override
