@@ -25,8 +25,11 @@ class _DigitalPetHomeState extends State<DigitalPetHome> {
   int happinessLevel = 50;
   int hungerLevel = 50;
   Timer? _hungerTimer;
+  Timer? _winTimer;
   final TextEditingController _nameController = TextEditingController();
   bool _nameSet = false;
+  bool _hasWon = false;
+  bool _hasLost = false;
   @override
   void initState() {
     super.initState();
@@ -41,8 +44,64 @@ class _DigitalPetHomeState extends State<DigitalPetHome> {
   @override
   void dispose() {
     _hungerTimer?.cancel();
+    _winTimer?.cancel();
     _nameController.dispose();
     super.dispose();
+  }
+
+  void _checkWinCondition() {
+    if (_hasWon || _hasLost) return;
+    // Win condition
+    if (happinessLevel > 80) {
+      if (_winTimer == null) {
+        _winTimer = Timer(const Duration(seconds: 10), () {
+          setState(() {
+            _hasWon = true;
+          });
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('You Win!'),
+              content: const Text('Your pet has been happy for 3 minutes!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        });
+      }
+    } else {
+      _winTimer?.cancel();
+      _winTimer = null;
+    }
+    // Loss condition
+    if (hungerLevel >= 100 && happinessLevel <= 10 && !_hasLost) {
+      setState(() {
+        _hasLost = true;
+      });
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Game Over'),
+          content: const Text('Your pet became too hungry and unhappy.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   String get petMoodText {
@@ -76,35 +135,51 @@ class _DigitalPetHomeState extends State<DigitalPetHome> {
   }
 
   void _playWithPet() {
+    if (_hasWon || _hasLost) return;
     setState(() {
       happinessLevel += 10;
       _updateHunger();
+      _checkWinCondition();
     });
   }
 
   void _feedPet() {
+    if (_hasWon || _hasLost) return;
     setState(() {
       hungerLevel -= 10;
       _updateHappiness();
+      _checkWinCondition();
     });
   }
 
   void _updateHappiness() {
     happinessLevel += 10;
+    _checkWinCondition();
   }
 
   void _updateHunger() {
+    if (_hasWon || _hasLost) return;
     setState(() {
       hungerLevel += 5;
       if (hungerLevel > 100) {
         hungerLevel = 100;
         happinessLevel -= 20;
       }
+      _checkWinCondition();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_hasWon) {
+      // Optionally, you can show a special win screen here
+    }
+    if (_hasWon) {
+      // Optionally, you can show a special win screen here
+    }
+    if (_hasLost) {
+      // Optionally, you can show a special loss screen here
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Digital Pet'),
@@ -150,13 +225,12 @@ class _DigitalPetHomeState extends State<DigitalPetHome> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: petColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.black, width: 2),
+                      ClipOval(
+                        child: Image.asset(
+                          'assets/panda.png',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(width: 16.0),
